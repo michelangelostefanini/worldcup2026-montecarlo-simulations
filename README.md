@@ -29,19 +29,7 @@ weights and Poisson parameters. Results are written to `outputs/`.
 
 ## Model structure
 
-```mermaid
-flowchart LR
-    H["Historical results<br>1990–2026"] --> E["Chronological Elo"]
-    G["2026 group stage"] --> U["Post-group Elo update"]
-    G --> F["Group form"]
-    E --> U
-    U --> S["70% normalized Elo<br>30% normalized form"]
-    F --> S
-    S --> P["Poisson match model"]
-    B["Knockout bracket"] --> M["Monte Carlo simulation<br>1,000,000 tournaments"]
-    P --> M
-    M --> O["Stage and title probabilities"]
-```
+![World Cup 2026 simulation model structure](outputs/plots/model_structure.svg)
 
 ### 1. Chronological Elo
 
