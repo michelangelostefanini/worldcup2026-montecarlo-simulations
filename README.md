@@ -113,7 +113,7 @@ All inputs are stored in `data/`. Team names must be consistent across files.
 
 | File | Contents | Rows used |
 |---|---|---:|
-| `historical_results.csv` | International results with date, teams, score, competition and neutral-ground flag. The notebook uses `1990-01-01`–`2026-06-10`; older rows remain available for other experiments. | 32,287 |
+| `historical_results.csv` | International results with date, teams, score, competition and neutral-ground flag. The notebook uses `1990-01-01`–`2026-06-10`; older rows remain available for other experiments. Dataset from kaggle.com "International football resylts from 1872 to 2026" | 32,287 |
 | `group_stage_2026.csv` | All 72 completed group-stage matches for the 48 teams, dated `2026-06-11`–`2026-06-27`. Optional `home_xg` and `away_xg` columns are supported. | 72 |
 | `bracket_2026.csv` | The 16 Round-of-32 pairings plus the routing of winners through R16, quarterfinals, semifinals and final. | 31 |
 
