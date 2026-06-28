@@ -199,16 +199,15 @@ Complete outputs:
 └── README.md
 ```
 
-## Limitations
+## Future improvements
 
-- Independent Poisson scores do not capture score correlation, tactical state
-  or separate attack and defence strengths.
-- Group form is based on only three matches per team and can be noisy.
-- Injuries, suspensions, lineups, travel, rest and specialist penalty ability
-  are not represented.
-- Min-max normalization depends on the teams included in the bracket.
-- Elo and Poisson parameters are modelling choices and are not automatically
-  calibrated in this version.
+- Implementation of adaptive Elo changes during simulations.
+- Better predictive model than indipendent Poisson scores.
+- Include more data like: injuries, suspensions, lineups, travel, hydration breaks,rest and specialist penalty ability.
+- Automatically calibrate Elo and Poisson parameters
+
+## Contacts
+Michelangelo Stefanini: michelangelo.stefanini@mail.polimi.it
 
 ## License
 
