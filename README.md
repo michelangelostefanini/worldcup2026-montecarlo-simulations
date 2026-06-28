@@ -221,3 +221,8 @@ Complete outputs:
 - Min-max normalization depends on the teams included in the bracket.
 - Elo and Poisson parameters are modelling choices and are not automatically
   calibrated in this version.
+
+## License
+
+The source code is released under the [MIT License](LICENSE). The datasets are
+not covered by that grant; their original terms should be checked separately.
