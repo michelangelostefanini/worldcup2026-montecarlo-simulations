@@ -1,0 +1,32 @@
+match_id,round,team_a,team_b,next_match_id,next_slot
+M73,R32,South Africa,Canada,M90,team_a
+M74,R32,Germany,Paraguay,M89,team_a
+M75,R32,Netherlands,Morocco,M90,team_b
+M76,R32,Brazil,Japan,M91,team_a
+M77,R32,France,Sweden,M89,team_b
+M78,R32,Ivory Coast,Norway,M91,team_b
+M79,R32,Mexico,Ecuador,M92,team_a
+M80,R32,England,DR Congo,M92,team_b
+M81,R32,United States,Bosnia and Herzegovina,M94,team_a
+M82,R32,Belgium,Senegal,M94,team_b
+M83,R32,Portugal,Croatia,M93,team_a
+M84,R32,Spain,Austria,M93,team_b
+M85,R32,Switzerland,Algeria,M96,team_a
+M86,R32,Argentina,Cape Verde,M95,team_a
+M87,R32,Colombia,Ghana,M96,team_b
+M88,R32,Australia,Egypt,M95,team_b
+M89,R16,,,M97,team_a
+M90,R16,,,M97,team_b
+M91,R16,,,M99,team_a
+M92,R16,,,M99,team_b
+M93,R16,,,M98,team_a
+M94,R16,,,M98,team_b
+M95,R16,,,M100,team_a
+M96,R16,,,M100,team_b
+M97,QF,,,M101,team_a
+M98,QF,,,M101,team_b
+M99,QF,,,M102,team_a
+M100,QF,,,M102,team_b
+M101,SF,,,M104,team_a
+M102,SF,,,M104,team_b
+M104,F,,,,
