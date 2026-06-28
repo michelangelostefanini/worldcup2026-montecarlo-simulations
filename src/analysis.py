@@ -37,6 +37,26 @@ def save_probability_tables(
     return {"stages": stage_path, "winners": winner_path}
 
 
+def save_match_probability_tables(
+    matchup_probabilities: pd.DataFrame,
+    most_likely_matchups: pd.DataFrame,
+    team_match_probabilities: pd.DataFrame,
+    output_dir: str | Path,
+) -> dict[str, Path]:
+    """Save complete and compact per-match probability reports."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    paths = {
+        "matchups": output_dir / "matchup_probabilities.csv",
+        "most_likely_matchups": output_dir / "most_likely_matchups.csv",
+        "teams_by_match": output_dir / "team_match_probabilities.csv",
+    }
+    matchup_probabilities.to_csv(paths["matchups"], index=False)
+    most_likely_matchups.to_csv(paths["most_likely_matchups"], index=False)
+    team_match_probabilities.to_csv(paths["teams_by_match"], index=False)
+    return paths
+
+
 def plot_probability_bars(
     probabilities: pd.Series,
     title: str,

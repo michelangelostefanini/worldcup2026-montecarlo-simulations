@@ -38,6 +38,16 @@ class TournamentResult:
     matches: tuple[MatchResult, ...]
 
 
+@dataclass(frozen=True)
+class TournamentSimulationReport:
+    """Stage and per-match probabilities from the same Monte Carlo run."""
+
+    stage_probabilities: pd.DataFrame
+    matchup_probabilities: pd.DataFrame
+    most_likely_matchups: pd.DataFrame
+    team_match_probabilities: pd.DataFrame
+
+
 def validate_bracket(bracket: pd.DataFrame, require_full_r32: bool = True) -> None:
     """Validate IDs, round links, slots, and the standard 32-team shape."""
     required = {
@@ -166,6 +176,11 @@ class TournamentSimulator:
                 )
                 compiled.append((row.match_id, next_id, next_slot))
             self._matches_by_round[round_name] = tuple(compiled)
+        self._match_sequence = tuple(
+            (match_id, round_name)
+            for round_name in ROUND_ORDER
+            for match_id, _, _ in self._matches_by_round[round_name]
+        )
 
     def simulate_once(self, rng: np.random.Generator) -> TournamentResult:
         slots = {
@@ -233,3 +248,133 @@ class TournamentSimulator:
         probabilities.index.name = "team"
         probabilities = probabilities.loc[:, STAGE_COLUMNS] / n_simulations
         return probabilities.sort_values("Champion", ascending=False)
+
+    def simulate_many_detailed(
+        self,
+        n_simulations: int = 10_000,
+        seed: int | None = 2026,
+        show_progress: bool = True,
+    ) -> TournamentSimulationReport:
+        """Return stage, matchup, and team-by-match probabilities.
+
+        ``matchup_probability`` is unconditional: it estimates the chance that
+        the two named teams occupy that bracket match. Winner probabilities are
+        conditional on that matchup occurring.
+        """
+        if n_simulations <= 0:
+            raise ValueError("n_simulations must be a positive integer")
+
+        rng = np.random.default_rng(seed)
+        stage_counts = {
+            team: {stage: 0 for stage in STAGE_COLUMNS}
+            for team in self.teams
+        }
+        matchup_counts: Counter[tuple[str, str, str]] = Counter()
+        matchup_winner_counts: Counter[tuple[str, str, str, str]] = Counter()
+        appearance_counts: Counter[tuple[str, str, str]] = Counter()
+        match_winner_counts: Counter[tuple[str, str]] = Counter()
+
+        iterator = range(n_simulations)
+        if show_progress:
+            iterator = tqdm(iterator, desc="Simulating tournaments", unit="sim")
+
+        for _ in iterator:
+            result = self.simulate_once(rng)
+            for stage, reached in result.stages_reached.items():
+                for team in reached:
+                    stage_counts[team][stage] += 1
+
+            for (match_id, _), match in zip(
+                self._match_sequence, result.matches, strict=True
+            ):
+                matchup_key = (match_id, match.team_a, match.team_b)
+                matchup_counts[matchup_key] += 1
+                assert match.winner is not None
+                matchup_winner_counts[(*matchup_key, match.winner)] += 1
+                appearance_counts[(match_id, "team_a", match.team_a)] += 1
+                appearance_counts[(match_id, "team_b", match.team_b)] += 1
+                match_winner_counts[(match_id, match.winner)] += 1
+
+        stage_probabilities = pd.DataFrame.from_dict(stage_counts, orient="index")
+        stage_probabilities.index.name = "team"
+        stage_probabilities = (
+            stage_probabilities.loc[:, STAGE_COLUMNS] / n_simulations
+        ).sort_values("Champion", ascending=False)
+
+        round_by_match = dict(self._match_sequence)
+        order_by_match = {
+            match_id: order
+            for order, (match_id, _) in enumerate(self._match_sequence)
+        }
+        matchup_rows: list[dict[str, object]] = []
+        for (match_id, team_a, team_b), occurrences in matchup_counts.items():
+            wins_a = matchup_winner_counts[(match_id, team_a, team_b, team_a)]
+            wins_b = matchup_winner_counts[(match_id, team_a, team_b, team_b)]
+            probability_a = wins_a / occurrences
+            probability_b = wins_b / occurrences
+            favorite = team_a if probability_a >= probability_b else team_b
+            matchup_rows.append(
+                {
+                    "match_id": match_id,
+                    "round": round_by_match[match_id],
+                    "team_a": team_a,
+                    "team_b": team_b,
+                    "matchup_probability": occurrences / n_simulations,
+                    "team_a_win_probability_given_matchup": probability_a,
+                    "team_b_win_probability_given_matchup": probability_b,
+                    "favorite": favorite,
+                    "favorite_win_probability": max(probability_a, probability_b),
+                    "simulated_occurrences": occurrences,
+                    "_match_order": order_by_match[match_id],
+                }
+            )
+        matchup_probabilities = pd.DataFrame(matchup_rows).sort_values(
+            ["_match_order", "matchup_probability", "team_a", "team_b"],
+            ascending=[True, False, True, True],
+            kind="stable",
+        )
+        most_likely_matchups = (
+            matchup_probabilities.groupby("match_id", sort=False, as_index=False)
+            .head(1)
+            .copy()
+        )
+        matchup_probabilities = matchup_probabilities.drop(columns="_match_order")
+        most_likely_matchups = most_likely_matchups.drop(columns="_match_order")
+
+        appearance_rows: list[dict[str, object]] = []
+        for (match_id, slot, team), appearances in appearance_counts.items():
+            wins = match_winner_counts[(match_id, team)]
+            appearance_rows.append(
+                {
+                    "match_id": match_id,
+                    "round": round_by_match[match_id],
+                    "slot": slot,
+                    "team": team,
+                    "appearance_probability": appearances / n_simulations,
+                    "win_probability_given_appearance": wins / appearances,
+                    "unconditional_match_win_probability": wins / n_simulations,
+                    "simulated_appearances": appearances,
+                    "_match_order": order_by_match[match_id],
+                }
+            )
+        team_match_probabilities = (
+            pd.DataFrame(appearance_rows)
+            .sort_values(
+                [
+                    "_match_order",
+                    "appearance_probability",
+                    "unconditional_match_win_probability",
+                    "team",
+                ],
+                ascending=[True, False, False, True],
+                kind="stable",
+            )
+            .drop(columns="_match_order")
+        )
+
+        return TournamentSimulationReport(
+            stage_probabilities=stage_probabilities,
+            matchup_probabilities=matchup_probabilities.reset_index(drop=True),
+            most_likely_matchups=most_likely_matchups.reset_index(drop=True),
+            team_match_probabilities=team_match_probabilities.reset_index(drop=True),
+        )

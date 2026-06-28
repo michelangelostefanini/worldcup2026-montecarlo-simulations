@@ -101,6 +101,12 @@ P(A wins on penalties) = strength_a / (strength_a + strength_b)
 Every knockout match is neutral. Winners advance according to
 `next_match_id` and `next_slot` in the bracket CSV, avoiding hard-coded paths.
 
+The detailed simulation also records every match ID. For matches after the
+Round of 32 it reports both the probability that a particular matchup occurs
+and each team's win probability conditional on that matchup. This distinction
+avoids treating a strong but very unlikely finalist as the "favorite" of a
+final that it rarely reaches.
+
 ## Datasets
 
 All inputs are stored in `data/`. Team names must be consistent across files.
@@ -174,6 +180,7 @@ Complete outputs:
 
 - [`outputs/stage_probabilities.csv`](outputs/stage_probabilities.csv)
 - [`outputs/winner_probabilities.csv`](outputs/winner_probabilities.csv)
+- [`outputs/most_likely_matchups.csv`](outputs/most_likely_matchups.csv)
 - [`outputs/plots/stage_probability_heatmap.png`](outputs/plots/stage_probability_heatmap.png)
 - [`outputs/plots/final_probabilities.png`](outputs/plots/final_probabilities.png)
 - [`outputs/plots/group_stage_weight_sensitivity.png`](outputs/plots/group_stage_weight_sensitivity.png)
