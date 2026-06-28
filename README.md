@@ -168,12 +168,15 @@ Together, the top three account for about 70.8% of simulated champions.
 
 ![World Cup 2026 winner probabilities](outputs/plots/winner_probabilities.png)
 
+![Sensitivity of win probabilities to group-stage form](outputs/plots/group_stage_weight_sensitivity.png)
+
 Complete outputs:
 
 - [`outputs/stage_probabilities.csv`](outputs/stage_probabilities.csv)
 - [`outputs/winner_probabilities.csv`](outputs/winner_probabilities.csv)
 - [`outputs/plots/stage_probability_heatmap.png`](outputs/plots/stage_probability_heatmap.png)
 - [`outputs/plots/final_probabilities.png`](outputs/plots/final_probabilities.png)
+- [`outputs/plots/group_stage_weight_sensitivity.png`](outputs/plots/group_stage_weight_sensitivity.png)
 
 ## Repository structure
 
