@@ -204,7 +204,7 @@ Complete outputs:
 - Implementation of adaptive Elo changes during simulations.
 - Better predictive model than indipendent Poisson scores.
 - Include more data like: injuries, suspensions, lineups, travel, hydration breaks,rest and specialist penalty ability.
-- Automatically calibrate Elo and Poisson parameters
+- Automatically calibrate Elo and Poisson parameters.
 
 ## Contacts
 Michelangelo Stefanini: michelangelo.stefanini@mail.polimi.it
